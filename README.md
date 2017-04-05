@@ -141,7 +141,11 @@ Add unit tests for any new or changed functionality. Lint and test your code.
 
 ## Version History
 
-#### Version 0.1.0 
+#### Version 0.1.2
+
+* Fixed version history
+
+#### Version 0.1.1 
 
 * initial release
 
