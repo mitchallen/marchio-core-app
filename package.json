@@ -1,7 +1,7 @@
 {
   "name": "marchio-core-app",
   "version": "0.1.0",
-  "description": "",
+  "description": "marchio core app",
   "main": "modules/index.js",
   "scripts": {
     "//": "To use: npm start (useful if not a module)",

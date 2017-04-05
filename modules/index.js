@@ -27,11 +27,42 @@ const bodyParser = require('body-parser');
  * @param {Object} spec Named parameters object
  * @returns {Promise} that resolves to {module:marchio-core-app}
  * @example <caption>Usage example</caption>
-    var factory = require("marchio-core-app");
+    "use strict";
+
+    var killable = require('killable'),
+        factory = require("marchio-core-app");
+
+    var _modelName = 'coretest';
+
+    var _testModel = {
+        name: _modelName,
+        fields: {
+            email:    { type: String, required: true },
+            status:   { type: String, required: true, default: "NEW" }
+        }
+    };
  
-    factory.create({})
+    factory.create({
+        model: _testModel
+    })
     .then(function(obj) {
-        return obj.health();
+        var app = obj.app;
+        var path = '/:model/:id';
+        var fGet = function( req, res, next ) {
+            var dbId = req.params._id; 
+            var model = req.params.model;
+            // console.log( req.params );
+            res
+                .location( req.baseUrl + "/" + [ _modelName, dbId ].join('/') )  // .location("/" + model + "/" + doc._id)
+                .status(200)    
+                .json( req.params );
+
+        };
+        app.get(path, fGet);
+        _server = app.listen(TEST_PORT, function() {
+            console.log(`listening on port ${TEST_PORT}`);   
+        });
+        killable(_server);
     })
     .catch( function(err) { 
         console.error(err); 
