@@ -14,7 +14,7 @@ var request = require('supertest'),
     should = require('should'),
     killable = require('killable'),
     modulePath = "../modules/index",
-    TEST_PORT = process.env.TEST_PORT || 8080;;
+    TEST_PORT = process.env.TEST_PORT || 8080;
 
 describe('module factory smoke test', () => {
 
@@ -22,8 +22,10 @@ describe('module factory smoke test', () => {
 
     var _server = null;
 
+    var _modelName = 'coretest';
+
     var _testModel = {
-        name: 'datastore-test',
+        name: _modelName,
         fields: {
             email:    { type: String, required: true },
             status:   { type: String, required: true, default: "NEW" },
@@ -33,6 +35,8 @@ describe('module factory smoke test', () => {
             // beta :    { type: String, default: "BBB" },
         }
     };
+
+    var _testHost = `http://localhost:${TEST_PORT}`;
 
     before( done => {
         // Call before all tests
@@ -110,7 +114,7 @@ describe('module factory smoke test', () => {
         });
     });
 
-    it('create method should be able to listen', done => {
+    it('app should be able to listen', done => {
         _factory.create({
             model: _testModel
         })
@@ -122,6 +126,399 @@ describe('module factory smoke test', () => {
             });
             killable(_server);
             done();
+        })
+        .catch( function(err) { 
+            console.error(err); 
+            done(err);  // to pass on err, remove err (done() - no arguments)
+        });
+    });
+
+    it('app should be able to get model and id', done => {
+        _factory.create({
+            model: _testModel
+        })
+        .then( function(obj) {
+            should.exist(obj);
+            var app = obj.app;
+            var path = '/:model/:id';
+            var fGet = function( req, res, next ) {
+                var dbId = req.params._id;  // set by validateParams
+                var model = req.params.model;
+                // console.log( req.params );
+                res
+                    .location( req.baseUrl + "/" + [ _modelName, dbId ].join('/') )  // .location("/" + model + "/" + doc._id)
+                    .status(200)    
+                    .json( req.params );
+
+            };
+            app.get(path, fGet);
+            _server = app.listen(TEST_PORT, function() {
+                // console.log(`listening on port ${TEST_PORT}`);   
+            });
+            killable(_server);
+            return Promise.resolve(true);
+        })
+        .then(() => {
+            // var _recordId = res.body._id; 
+            var _recordId = 123;    // can be anything, not validating here against post / db
+            var _getUrl = `/${_testModel.name}/${_recordId}`;
+            // console.log("GET URL: ", _getUrl);
+            request(_testHost)
+                .get(_getUrl)
+                .expect(200)
+                .end(function (err, res) {
+                    should.not.exist(err);
+                    // console.log(res.body);
+                    should.exist(res.body.model);
+                    should.exist(res.body._id);
+                    should.exist(res.body.id);
+                    res.body.model.should.eql(_testModel.name);
+                    res.body._id.should.eql(123);
+                    res.body.id.should.eql('123');
+                    done();
+                });
+        })
+        .catch( function(err) { 
+            console.error(err); 
+            done(err);  // to pass on err, remove err (done() - no arguments)
+        });
+    });
+
+    it('app should return 404 for invalid model', done => {
+        _factory.create({
+            model: _testModel
+        })
+        .then( function(obj) {
+            should.exist(obj);
+            var app = obj.app;
+            var path = '/:model/:id';
+            var fGet = function( req, res, next ) {
+                var dbId = req.params._id;  // set by validateParams
+                var model = req.params.model;
+                // console.log( req.params );
+                res
+                    .location( req.baseUrl + "/" + [ _modelName, dbId ].join('/') )  // .location("/" + model + "/" + doc._id)
+                    .status(200)    
+                    .json( req.params );
+
+            };
+            app.get(path, fGet);
+            _server = app.listen(TEST_PORT, function() {
+                // console.log(`listening on port ${TEST_PORT}`);   
+            });
+            killable(_server);
+            return Promise.resolve(true);
+        })
+        .then(() => {
+            // var _recordId = res.body._id; 
+            var _recordId = 123;    // can be anything, not validating here against post / db
+            var _getUrl = `/BOGUS/${_recordId}`;
+            // console.log("GET URL: ", _getUrl);
+            request(_testHost)
+                .get(_getUrl)
+                .expect(404)
+                .end(function (err, res) {;
+                    done();
+                });
+        })
+        .catch( function(err) { 
+            console.error(err); 
+            done(err);  // to pass on err, remove err (done() - no arguments)
+        });
+    });
+
+    it('app should return 404 if expected id not found', done => {
+        _factory.create({
+            model: _testModel
+        })
+        .then( function(obj) {
+            should.exist(obj);
+            var app = obj.app;
+            var path = '/:model/:id';
+            var fGet = function( req, res, next ) {
+                var dbId = req.params._id;  // set by validateParams
+                var model = req.params.model;
+                // console.log( req.params );
+                res
+                    .location( req.baseUrl + "/" + [ _modelName, dbId ].join('/') )  // .location("/" + model + "/" + doc._id)
+                    .status(200)    
+                    .json( req.params );
+
+            };
+            app.get(path, fGet);
+            _server = app.listen(TEST_PORT, function() {
+                // console.log(`listening on port ${TEST_PORT}`);   
+            });
+            killable(_server);
+            return Promise.resolve(true);
+        })
+        .then(() => {
+            var _getUrl = `/${_testModel.name}`;
+            // console.log("GET URL: ", _getUrl);
+            request(_testHost)
+                .get(_getUrl)
+                .expect(404)
+                .end(function (err, res) {
+                    done();
+                });
+        })
+        .catch( function(err) { 
+            console.error(err); 
+            done(err);  // to pass on err, remove err (done() - no arguments)
+        });
+    });
+
+    it('app should be able to post model and id', done => {
+        _factory.create({
+            model: _testModel
+        })
+        .then( function(obj) {
+            should.exist(obj);
+            var app = obj.app;
+            var path = '/:model/:id';
+            var fPost = function( req, res, next ) {
+                var dbId = req.params._id;  // set by validateParams
+                var model = req.params.model;
+                // console.log( req.params );
+                res
+                    .location( req.baseUrl + "/" + [ _modelName, dbId ].join('/') )  // .location("/" + model + "/" + doc._id)
+                    .status(200)    
+                    .json( req.params );
+
+            };
+            app.post(path, fPost);
+            _server = app.listen(TEST_PORT, function() {
+                // console.log(`listening on port ${TEST_PORT}`);   
+            });
+            killable(_server);
+            return Promise.resolve(true);
+        })
+        .then(() => {
+            // var _recordId = res.body._id; 
+            var _recordId = 123;    // can be anything, not validating here against post / db
+            var _postUrl = `/${_testModel.name}/${_recordId}`;
+            // console.log("GET URL: ", _getUrl);
+            request(_testHost)
+                .post(_postUrl)
+                .send({})
+                .expect(200)
+                .end(function (err, res) {
+                    should.not.exist(err);
+                    // console.log(res.body);
+                    should.exist(res.body.model);
+                    should.exist(res.body._id);
+                    should.exist(res.body.id);
+                    res.body.model.should.eql(_testModel.name);
+                    res.body._id.should.eql(123);
+                    res.body.id.should.eql('123');
+                    done();
+                });
+        })
+        .catch( function(err) { 
+            console.error(err); 
+            done(err);  // to pass on err, remove err (done() - no arguments)
+        });
+    });
+
+    it('app should be able to post model with no id', done => {
+        _factory.create({
+            model: _testModel
+        })
+        .then( function(obj) {
+            should.exist(obj);
+            var app = obj.app;
+            var path = '/:model';
+            var fPost = function( req, res, next ) {
+                var dbId = 123;  // would usually get from db after post
+                var model = req.params.model;
+                // console.log( req.params );
+                res
+                    .location( req.baseUrl + "/" + [ _modelName, dbId ].join('/') )  // .location("/" + model + "/" + doc._id)
+                    .status(200)    
+                    .json( { model: model, _id: dbId } );
+
+            };
+            app.post(path, fPost);
+            _server = app.listen(TEST_PORT, function() {
+                // console.log(`listening on port ${TEST_PORT}`);   
+            });
+            killable(_server);
+            return Promise.resolve(true);
+        })
+        .then(() => {
+            // var _recordId = res.body._id; 
+            var _recordId = 123;    // can be anything, not validating here against post / db
+            var _postUrl = `/${_testModel.name}`;
+            // console.log("GET URL: ", _getUrl);
+            request(_testHost)
+                .post(_postUrl)
+                .send({})
+                .expect(200)
+                .end(function (err, res) {
+                    should.not.exist(err);
+                    // console.log(res.body);
+                    should.exist(res.body.model);
+                    res.body.model.should.eql(_testModel.name);
+                    should.exist(res.body._id);
+                    should.not.exist(res.body.id);
+                    done();
+                });
+        })
+        .catch( function(err) { 
+            console.error(err); 
+            done(err);  // to pass on err, remove err (done() - no arguments)
+        });
+    });
+
+
+    it('app should be able to put model and id', done => {
+        _factory.create({
+            model: _testModel
+        })
+        .then( function(obj) {
+            should.exist(obj);
+            var app = obj.app;
+            var path = '/:model/:id';
+            var fPut = function( req, res, next ) {
+                var dbId = req.params._id;  // set by validateParams
+                var model = req.params.model;
+                // console.log( req.params );
+                res
+                    .location( req.baseUrl + "/" + [ _modelName, dbId ].join('/') )  // .location("/" + model + "/" + doc._id)
+                    .status(200)    
+                    .json( req.params );
+
+            };
+            app.post(path, fPut);
+            _server = app.listen(TEST_PORT, function() {
+                // console.log(`listening on port ${TEST_PORT}`);   
+            });
+            killable(_server);
+            return Promise.resolve(true);
+        })
+        .then(() => {
+            // var _recordId = res.body._id; 
+            var _recordId = 123;    // can be anything, not validating here against post / db
+            var _putUrl = `/${_testModel.name}/${_recordId}`;
+            // console.log("GET URL: ", _getUrl);
+            request(_testHost)
+                .post(_putUrl)
+                .send({})
+                .expect(200)
+                .end(function (err, res) {
+                    should.not.exist(err);
+                    // console.log(res.body);
+                    should.exist(res.body.model);
+                    should.exist(res.body._id);
+                    should.exist(res.body.id);
+                    res.body.model.should.eql(_testModel.name);
+                    res.body._id.should.eql(123);
+                    res.body.id.should.eql('123');
+                    done();
+                });
+        })
+        .catch( function(err) { 
+            console.error(err); 
+            done(err);  // to pass on err, remove err (done() - no arguments)
+        });
+    });
+
+    it('app should be able to patch model and id', done => {
+        _factory.create({
+            model: _testModel
+        })
+        .then( function(obj) {
+            should.exist(obj);
+            var app = obj.app;
+            var path = '/:model/:id';
+            var fPatch = function( req, res, next ) {
+                var dbId = req.params._id;  // set by validateParams
+                var model = req.params.model;
+                // console.log( req.params );
+                res
+                    .location( req.baseUrl + "/" + [ _modelName, dbId ].join('/') )  // .location("/" + model + "/" + doc._id)
+                    .status(200)    
+                    .json( req.params );
+
+            };
+            app.patch(path, fPatch);
+            _server = app.listen(TEST_PORT, function() {
+                // console.log(`listening on port ${TEST_PORT}`);   
+            });
+            killable(_server);
+            return Promise.resolve(true);
+        })
+        .then(() => {
+            // var _recordId = res.body._id; 
+            var _recordId = 123;    // can be anything, not validating here against post / db
+            var _patchUrl = `/${_testModel.name}/${_recordId}`;
+            // console.log("GET URL: ", _getUrl);
+            request(_testHost)
+                .patch(_patchUrl)
+                .send({})
+                .expect(200)
+                .end(function (err, res) {
+                    should.not.exist(err);
+                    // console.log(res.body);
+                    should.exist(res.body.model);
+                    should.exist(res.body._id);
+                    should.exist(res.body.id);
+                    res.body.model.should.eql(_testModel.name);
+                    res.body._id.should.eql(123);
+                    res.body.id.should.eql('123');
+                    done();
+                });
+        })
+        .catch( function(err) { 
+            console.error(err); 
+            done(err);  // to pass on err, remove err (done() - no arguments)
+        });
+    });
+
+    it('app should be able to delete model and id', done => {
+        _factory.create({
+            model: _testModel
+        })
+        .then( function(obj) {
+            should.exist(obj);
+            var app = obj.app;
+            var path = '/:model/:id';
+            var fDel = function( req, res, next ) {
+                var dbId = req.params._id;  // set by validateParams
+                var model = req.params.model;
+                // console.log( req.params );
+                res
+                    .location( req.baseUrl + "/" + [ _modelName, dbId ].join('/') )  // .location("/" + model + "/" + doc._id)
+                    .status(200)    
+                    .json( req.params );
+
+            };
+            app.delete(path, fDel);
+            _server = app.listen(TEST_PORT, function() {
+                // console.log(`listening on port ${TEST_PORT}`);   
+            });
+            killable(_server);
+            return Promise.resolve(true);
+        })
+        .then(() => {
+            // var _recordId = res.body._id; 
+            var _recordId = 123;    // can be anything, not validating here against post / db
+            var _delUrl = `/${_testModel.name}/${_recordId}`;
+            // console.log("GET URL: ", _getUrl);
+            request(_testHost)
+                .del(_delUrl)
+                .expect(200)
+                .end(function (err, res) {
+                    should.not.exist(err);
+                    // console.log(res.body);
+                    should.exist(res.body.model);
+                    should.exist(res.body._id);
+                    should.exist(res.body.id);
+                    res.body.model.should.eql(_testModel.name);
+                    res.body._id.should.eql(123);
+                    res.body.id.should.eql('123');
+                    done();
+                });
         })
         .catch( function(err) { 
             console.error(err); 
