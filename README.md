@@ -90,10 +90,10 @@ It takes one spec parameter that must be an object with named parameters
     factory.create({
         model: _testModel
     })
-    .then(function(obj) {
+    .then( (obj) => {
         var app = obj.app;
         var path = '/:model/:id';
-        var fGet = function( req, res, next ) {
+        var fGet = ( req, res, next ) => {
             var dbId = req.params._id; 
             var model = req.params.model;
             // console.log( req.params );
@@ -109,7 +109,7 @@ It takes one spec parameter that must be an object with named parameters
         });
         killable(_server);
     })
-    .catch( function(err) { 
+    .catch( (err) => { 
         console.error(err); 
     });
 ```
@@ -140,6 +140,10 @@ Add unit tests for any new or changed functionality. Lint and test your code.
 * * *
 
 ## Version History
+
+#### Version 0.1.3
+
+* Refactored test cases and doc example
 
 #### Version 0.1.2
 

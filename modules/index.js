@@ -45,10 +45,10 @@ const bodyParser = require('body-parser');
     factory.create({
         model: _testModel
     })
-    .then(function(obj) {
+    .then( (obj) => {
         var app = obj.app;
         var path = '/:model/:id';
-        var fGet = function( req, res, next ) {
+        var fGet = ( req, res, next ) => {
             var dbId = req.params._id; 
             var model = req.params.model;
             // console.log( req.params );
@@ -64,7 +64,7 @@ const bodyParser = require('body-parser');
         });
         killable(_server);
     })
-    .catch( function(err) { 
+    .catch( (err) => { 
         console.error(err); 
     });
  */
