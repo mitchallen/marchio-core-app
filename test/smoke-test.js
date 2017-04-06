@@ -76,10 +76,10 @@ describe('module factory smoke test', () => {
 
     it('create method with no spec should fail', done => {
         _factory.create()
-        .then(function(obj){
+        .then( obj => {
             should.exist(obj);
         })
-        .catch( function(err) { 
+        .catch( err => {  
             // console.error(err); 
             done();  // to pass on err, remove err (done() - no arguments)
         });
@@ -89,11 +89,11 @@ describe('module factory smoke test', () => {
         _factory.create({
             model: _testModel
         })
-        .then(function(obj){
+        .then( obj => {
             should.exist(obj);
             done();
         })
-        .catch( function(err) { 
+        .catch( err => {  
             console.error(err); 
             done(err);  // to pass on err, remove err (done() - no arguments)
         });
@@ -103,12 +103,12 @@ describe('module factory smoke test', () => {
         _factory.create({
             model: _testModel
         })
-        .then(function(obj){
+        .then( obj => {
             should.exist(obj);
             should.exist(obj.app);
             done();
         })
-        .catch( function(err) { 
+        .catch( err => {  
             console.error(err); 
             done(err);  // to pass on err, remove err (done() - no arguments)
         });
@@ -118,7 +118,7 @@ describe('module factory smoke test', () => {
         _factory.create({
             model: _testModel
         })
-        .then(function(obj){
+        .then( obj => {
             should.exist(obj);
             var app = obj.app;
             _server = app.listen(TEST_PORT, () => {
@@ -127,7 +127,7 @@ describe('module factory smoke test', () => {
             killable(_server);
             done();
         })
-        .catch( function(err) { 
+        .catch( err => {  
             console.error(err); 
             done(err);  // to pass on err, remove err (done() - no arguments)
         });
@@ -137,11 +137,11 @@ describe('module factory smoke test', () => {
         _factory.create({
             model: _testModel
         })
-        .then( function(obj) {
+        .then( obj => {
             should.exist(obj);
             var app = obj.app;
             var path = '/:model/:id';
-            var fGet = function( req, res, next ) {
+            var fGet = ( req, res, next ) => {
                 var dbId = req.params._id;  // set by validateParams
                 var model = req.params.model;
                 // console.log( req.params );
@@ -158,7 +158,7 @@ describe('module factory smoke test', () => {
             killable(_server);
             return Promise.resolve(true);
         })
-        .then(() => {
+        .then( () => {
             // var _recordId = res.body._id; 
             var _recordId = 123;    // can be anything, not validating here against post / db
             var _getUrl = `/${_testModel.name}/${_recordId}`;
@@ -166,7 +166,7 @@ describe('module factory smoke test', () => {
             request(_testHost)
                 .get(_getUrl)
                 .expect(200)
-                .end(function (err, res) {
+                .end( (err, res) =>  {
                     should.not.exist(err);
                     // console.log(res.body);
                     should.exist(res.body.model);
@@ -178,7 +178,7 @@ describe('module factory smoke test', () => {
                     done();
                 });
         })
-        .catch( function(err) { 
+        .catch( err => {  
             console.error(err); 
             done(err);  // to pass on err, remove err (done() - no arguments)
         });
@@ -188,11 +188,11 @@ describe('module factory smoke test', () => {
         _factory.create({
             model: _testModel
         })
-        .then( function(obj) {
+        .then( obj => {
             should.exist(obj);
             var app = obj.app;
             var path = '/:model/:id';
-            var fGet = function( req, res, next ) {
+            var fGet = ( req, res, next ) => {
                 var dbId = req.params._id;  // set by validateParams
                 var model = req.params.model;
                 // console.log( req.params );
@@ -209,7 +209,7 @@ describe('module factory smoke test', () => {
             killable(_server);
             return Promise.resolve(true);
         })
-        .then(() => {
+        .then( () => {
             // var _recordId = res.body._id; 
             var _recordId = 123;    // can be anything, not validating here against post / db
             var _getUrl = `/BOGUS/${_recordId}`;
@@ -217,11 +217,11 @@ describe('module factory smoke test', () => {
             request(_testHost)
                 .get(_getUrl)
                 .expect(404)
-                .end(function (err, res) {;
+                .end( (err, res) =>  {;
                     done();
                 });
         })
-        .catch( function(err) { 
+        .catch( err => { 
             console.error(err); 
             done(err);  // to pass on err, remove err (done() - no arguments)
         });
@@ -231,11 +231,11 @@ describe('module factory smoke test', () => {
         _factory.create({
             model: _testModel
         })
-        .then( function(obj) {
+        .then( obj => {
             should.exist(obj);
             var app = obj.app;
             var path = '/:model/:id';
-            var fGet = function( req, res, next ) {
+            var fGet = ( req, res, next ) => {
                 var dbId = req.params._id;  // set by validateParams
                 var model = req.params.model;
                 // console.log( req.params );
@@ -252,17 +252,17 @@ describe('module factory smoke test', () => {
             killable(_server);
             return Promise.resolve(true);
         })
-        .then(() => {
+        .then( () => {
             var _getUrl = `/${_testModel.name}`;
             // console.log("GET URL: ", _getUrl);
             request(_testHost)
                 .get(_getUrl)
                 .expect(404)
-                .end(function (err, res) {
+                .end( (err, res) =>  {
                     done();
                 });
         })
-        .catch( function(err) { 
+        .catch( err => {  
             console.error(err); 
             done(err);  // to pass on err, remove err (done() - no arguments)
         });
@@ -272,11 +272,11 @@ describe('module factory smoke test', () => {
         _factory.create({
             model: _testModel
         })
-        .then( function(obj) {
+        .then( obj => {
             should.exist(obj);
             var app = obj.app;
             var path = '/:model/:id';
-            var fPost = function( req, res, next ) {
+            var fPost = ( req, res, next ) => {
                 var dbId = req.params._id;  // set by validateParams
                 var model = req.params.model;
                 // console.log( req.params );
@@ -293,7 +293,7 @@ describe('module factory smoke test', () => {
             killable(_server);
             return Promise.resolve(true);
         })
-        .then(() => {
+        .then( () => {
             // var _recordId = res.body._id; 
             var _recordId = 123;    // can be anything, not validating here against post / db
             var _postUrl = `/${_testModel.name}/${_recordId}`;
@@ -302,7 +302,7 @@ describe('module factory smoke test', () => {
                 .post(_postUrl)
                 .send({})
                 .expect(200)
-                .end(function (err, res) {
+                .end( (err, res) =>  {
                     should.not.exist(err);
                     // console.log(res.body);
                     should.exist(res.body.model);
@@ -324,11 +324,11 @@ describe('module factory smoke test', () => {
         _factory.create({
             model: _testModel
         })
-        .then( function(obj) {
+        .then( obj => {
             should.exist(obj);
             var app = obj.app;
             var path = '/:model';
-            var fPost = function( req, res, next ) {
+            var fPost = ( req, res, next ) => {
                 var dbId = 123;  // would usually get from db after post
                 var model = req.params.model;
                 // console.log( req.params );
@@ -345,7 +345,7 @@ describe('module factory smoke test', () => {
             killable(_server);
             return Promise.resolve(true);
         })
-        .then(() => {
+        .then( () => {
             // var _recordId = res.body._id; 
             var _recordId = 123;    // can be anything, not validating here against post / db
             var _postUrl = `/${_testModel.name}`;
@@ -354,7 +354,7 @@ describe('module factory smoke test', () => {
                 .post(_postUrl)
                 .send({})
                 .expect(200)
-                .end(function (err, res) {
+                .end( (err, res) =>  {
                     should.not.exist(err);
                     // console.log(res.body);
                     should.exist(res.body.model);
@@ -364,7 +364,7 @@ describe('module factory smoke test', () => {
                     done();
                 });
         })
-        .catch( function(err) { 
+        .catch( err => {  
             console.error(err); 
             done(err);  // to pass on err, remove err (done() - no arguments)
         });
@@ -375,11 +375,11 @@ describe('module factory smoke test', () => {
         _factory.create({
             model: _testModel
         })
-        .then( function(obj) {
+        .then( obj => {
             should.exist(obj);
             var app = obj.app;
             var path = '/:model/:id';
-            var fPut = function( req, res, next ) {
+            var fPut = ( req, res, next ) => {
                 var dbId = req.params._id;  // set by validateParams
                 var model = req.params.model;
                 // console.log( req.params );
@@ -396,7 +396,7 @@ describe('module factory smoke test', () => {
             killable(_server);
             return Promise.resolve(true);
         })
-        .then(() => {
+        .then( () => {
             // var _recordId = res.body._id; 
             var _recordId = 123;    // can be anything, not validating here against post / db
             var _putUrl = `/${_testModel.name}/${_recordId}`;
@@ -405,7 +405,7 @@ describe('module factory smoke test', () => {
                 .post(_putUrl)
                 .send({})
                 .expect(200)
-                .end(function (err, res) {
+                .end( (err, res) =>  {
                     should.not.exist(err);
                     // console.log(res.body);
                     should.exist(res.body.model);
@@ -417,7 +417,7 @@ describe('module factory smoke test', () => {
                     done();
                 });
         })
-        .catch( function(err) { 
+        .catch( err => { 
             console.error(err); 
             done(err);  // to pass on err, remove err (done() - no arguments)
         });
@@ -427,11 +427,11 @@ describe('module factory smoke test', () => {
         _factory.create({
             model: _testModel
         })
-        .then( function(obj) {
+        .then( obj => {
             should.exist(obj);
             var app = obj.app;
             var path = '/:model/:id';
-            var fPatch = function( req, res, next ) {
+            var fPatch = ( req, res, next ) => {
                 var dbId = req.params._id;  // set by validateParams
                 var model = req.params.model;
                 // console.log( req.params );
@@ -448,7 +448,7 @@ describe('module factory smoke test', () => {
             killable(_server);
             return Promise.resolve(true);
         })
-        .then(() => {
+        .then( () => {
             // var _recordId = res.body._id; 
             var _recordId = 123;    // can be anything, not validating here against post / db
             var _patchUrl = `/${_testModel.name}/${_recordId}`;
@@ -457,7 +457,7 @@ describe('module factory smoke test', () => {
                 .patch(_patchUrl)
                 .send({})
                 .expect(200)
-                .end(function (err, res) {
+                .end( (err, res) =>  {
                     should.not.exist(err);
                     // console.log(res.body);
                     should.exist(res.body.model);
@@ -469,7 +469,7 @@ describe('module factory smoke test', () => {
                     done();
                 });
         })
-        .catch( function(err) { 
+        .catch( err => {  
             console.error(err); 
             done(err);  // to pass on err, remove err (done() - no arguments)
         });
@@ -479,11 +479,11 @@ describe('module factory smoke test', () => {
         _factory.create({
             model: _testModel
         })
-        .then( function(obj) {
+        .then( obj => {
             should.exist(obj);
             var app = obj.app;
             var path = '/:model/:id';
-            var fDel = function( req, res, next ) {
+            var fDel = ( req, res, next ) => {
                 var dbId = req.params._id;  // set by validateParams
                 var model = req.params.model;
                 // console.log( req.params );
@@ -500,7 +500,7 @@ describe('module factory smoke test', () => {
             killable(_server);
             return Promise.resolve(true);
         })
-        .then(() => {
+        .then( () => {
             // var _recordId = res.body._id; 
             var _recordId = 123;    // can be anything, not validating here against post / db
             var _delUrl = `/${_testModel.name}/${_recordId}`;
@@ -508,7 +508,7 @@ describe('module factory smoke test', () => {
             request(_testHost)
                 .del(_delUrl)
                 .expect(200)
-                .end(function (err, res) {
+                .end( (err, res) =>  {
                     should.not.exist(err);
                     // console.log(res.body);
                     should.exist(res.body.model);
@@ -520,7 +520,7 @@ describe('module factory smoke test', () => {
                     done();
                 });
         })
-        .catch( function(err) { 
+        .catch( err => { 
             console.error(err); 
             done(err);  // to pass on err, remove err (done() - no arguments)
         });

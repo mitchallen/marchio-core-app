@@ -21,7 +21,7 @@ const bodyParser = require('body-parser');
  * @module marchio-core-app-factory
  */
 
- /** 
+/** 
  * Factory method 
  * It takes one spec parameter that must be an object with named parameters
  * @param {Object} spec Named parameters object
@@ -138,3 +138,5 @@ module.exports.create = (spec) => {
         resolve(spec);
     });
 };
+
+
