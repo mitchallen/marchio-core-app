@@ -69,6 +69,9 @@ It takes one spec parameter that must be an object with named parameters
 | Param | Type | Description |
 | --- | --- | --- |
 | spec | <code>Object</code> | Named parameters object |
+| spec.model | <code>Object</code> | Model definition |
+| [spec.use] | <code>Object</code> | Middleware to be passed on to app.use |
+| [spec.numeric] | <code>boolean</code> | If true (default), id parameter is converted to a number |
 
 **Example** *(Usage example)*  
 ```js
@@ -114,7 +117,6 @@ It takes one spec parameter that must be an object with named parameters
     });
 ```
 
-
 * * *
 
 ## Testing
@@ -140,6 +142,11 @@ Add unit tests for any new or changed functionality. Lint and test your code.
 * * *
 
 ## Version History
+
+#### Version 0.1.4
+
+* Added __numeric__ flag to create method
+* If __numeric__ is set to __false__, the id parameter will be treated like a string
 
 #### Version 0.1.3
 

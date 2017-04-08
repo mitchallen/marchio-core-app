@@ -31,6 +31,9 @@ It takes one spec parameter that must be an object with named parameters
 | Param | Type | Description |
 | --- | --- | --- |
 | spec | <code>Object</code> | Named parameters object |
+| spec.model | <code>Object</code> | Model definition |
+| [spec.use] | <code>Object</code> | Middleware to be passed on to app.use |
+| [spec.numeric] | <code>boolean</code> | If true (default), id parameter is converted to a number |
 
 **Example** *(Usage example)*  
 ```js

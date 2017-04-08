@@ -12,6 +12,9 @@
 
 var request = require('supertest'),
     should = require('should'),
+    FlakeIdGen = require('flake-idgen'),
+    biguint = require('biguint-format'),
+    flakeGenerator = new FlakeIdGen(),
     killable = require('killable'),
     modulePath = "../modules/index",
     TEST_PORT = process.env.TEST_PORT || 8080;
@@ -175,6 +178,162 @@ describe('module factory smoke test', () => {
                     res.body.model.should.eql(_testModel.name);
                     res.body._id.should.eql(123);
                     res.body.id.should.eql('123');
+                    done();
+                });
+        })
+        .catch( err => {  
+            console.error(err); 
+            done(err);  // to pass on err, remove err (done() - no arguments)
+        });
+    });
+
+    it('create method with numeric true should be able to get model and id', done => {
+        _factory.create({
+            model: _testModel,
+            numeric: true
+        })
+        .then( obj => {
+            should.exist(obj);
+            var app = obj.app;
+            var path = '/:model/:id';
+            var fGet = ( req, res, next ) => {
+                var dbId = req.params._id;  // set by validateParams
+                var model = req.params.model;
+                // console.log( req.params );
+                res
+                    .location( req.baseUrl + "/" + [ _modelName, dbId ].join('/') )  // .location("/" + model + "/" + doc._id)
+                    .status(200)    
+                    .json( req.params );
+
+            };
+            app.get(path, fGet);
+            _server = app.listen(TEST_PORT, function() {
+                // console.log(`listening on port ${TEST_PORT}`);   
+            });
+            killable(_server);
+            return Promise.resolve(true);
+        })
+        .then( () => {
+            // var _recordId = res.body._id; 
+            var _recordId = 123;    // can be anything, not validating here against post / db
+            var _getUrl = `/${_testModel.name}/${_recordId}`;
+            // console.log("GET URL: ", _getUrl);
+            request(_testHost)
+                .get(_getUrl)
+                .expect(200)
+                .end( (err, res) =>  {
+                    should.not.exist(err);
+                    // console.log(res.body);
+                    should.exist(res.body.model);
+                    should.exist(res.body._id);
+                    should.exist(res.body.id);
+                    res.body.model.should.eql(_testModel.name);
+                    res.body._id.should.eql(123);
+                    res.body.id.should.eql('123');
+                    done();
+                });
+        })
+        .catch( err => {  
+            console.error(err); 
+            done(err);  // to pass on err, remove err (done() - no arguments)
+        });
+    });
+
+    it('create method with numeric false should be able to get model and id', done => {
+        _factory.create({
+            model: _testModel,
+            numeric: false
+        })
+        .then( obj => {
+            should.exist(obj);
+            var app = obj.app;
+            var path = '/:model/:id';
+            var fGet = ( req, res, next ) => {
+                var dbId = req.params._id;  // set by validateParams
+                var model = req.params.model;
+                // console.log( req.params );
+                res
+                    .location( req.baseUrl + "/" + [ _modelName, dbId ].join('/') )  // .location("/" + model + "/" + doc._id)
+                    .status(200)    
+                    .json( req.params );
+
+            };
+            app.get(path, fGet);
+            _server = app.listen(TEST_PORT, function() {
+                // console.log(`listening on port ${TEST_PORT}`);   
+            });
+            killable(_server);
+            return Promise.resolve(true);
+        })
+        .then( () => {
+            // var _recordId = res.body._id; 
+            var _recordId = 123;    // can be anything, not validating here against post / db
+            var _getUrl = `/${_testModel.name}/${_recordId}`;
+            // console.log("GET URL: ", _getUrl);
+            request(_testHost)
+                .get(_getUrl)
+                .expect(200)
+                .end( (err, res) =>  {
+                    should.not.exist(err);
+                    // console.log(res.body);
+                    should.exist(res.body.model);
+                    should.exist(res.body._id);
+                    should.exist(res.body.id);
+                    res.body.model.should.eql(_testModel.name);
+                    res.body._id.should.eql('123'); 
+                    res.body.id.should.eql('123');
+                    done();
+                });
+        })
+        .catch( err => {  
+            console.error(err); 
+            done(err);  // to pass on err, remove err (done() - no arguments)
+        });
+    });
+
+    it('create method with non-numeric id should be able to get model and id', done => {
+        _factory.create({
+            model: _testModel,
+            numeric: false
+        })
+        .then( obj => {
+            should.exist(obj);
+            var app = obj.app;
+            var path = '/:model/:id';
+            var fGet = ( req, res, next ) => {
+                var dbId = req.params._id;  // set by validateParams
+                var model = req.params.model;
+                // console.log( req.params );
+                res
+                    .location( req.baseUrl + "/" + [ _modelName, dbId ].join('/') )  // .location("/" + model + "/" + doc._id)
+                    .status(200)    
+                    .json( req.params );
+
+            };
+            app.get(path, fGet);
+            _server = app.listen(TEST_PORT, function() {
+                // console.log(`listening on port ${TEST_PORT}`);   
+            });
+            killable(_server);
+            return Promise.resolve(true);
+        })
+        .then( () => {
+            // var _recordId = res.body._id; 
+            var _recordId = biguint( flakeGenerator.next(), 'dec');
+            var _getUrl = `/${_testModel.name}/${_recordId}`;
+            // console.log("GET URL: ", _getUrl);
+            request(_testHost)
+                .get(_getUrl)
+                .expect(200)
+                .end( (err, res) =>  {
+                    should.not.exist(err);
+                    // console.log(res.body);
+                    should.exist(res.body.model);
+                    should.exist(res.body._id);
+                    should.exist(res.body.id);
+                    res.body.model.should.eql(_testModel.name);
+                    res.body._id.should.eql(_recordId); 
+                    res.body.id.should.eql(_recordId);
                     done();
                 });
         })

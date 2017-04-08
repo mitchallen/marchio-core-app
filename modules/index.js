@@ -25,6 +25,9 @@ const bodyParser = require('body-parser');
  * Factory method 
  * It takes one spec parameter that must be an object with named parameters
  * @param {Object} spec Named parameters object
+ * @param {Object} spec.model Model definition
+ * @param {Object} [spec.use] Middleware to be passed on to app.use
+ * @param {boolean} [spec.numeric] If true (default), id parameter is converted to a number
  * @returns {Promise} that resolves to {module:marchio-core-app}
  * @example <caption>Usage example</caption>
     "use strict";
@@ -78,7 +81,7 @@ module.exports.create = (spec) => {
         spec = spec || {};
 
         var model = spec.model,
-            projectId = spec.projectId,
+            numeric = spec.numeric === undefined ? true : spec.numeric,
             middleware = spec.use;
 
         if( ! model ) {
@@ -111,17 +114,23 @@ module.exports.create = (spec) => {
 
         app.param('id', function(req, res, next) {
 
-            // var dbId = req.params.id;    // would go in as 'name' and not 'id' (because it's a string)
-            var dbId = parseInt( req.params.id, 10 ) || -1;
+            // for Google Datastore: if string would go in as 'name' and not 'id' 
 
-            if( dbId === -1 ) {
-                // Invalid id format
-                var eMsg = `### ERROR: '${req.params.id}' is not a valid id`;
-                // console.error(eMsg);
-                res
-                    .status(404)
-                    .json({ error: eMsg });
-                return; // on error do NOT call next
+            var dbId = req.params.id;
+
+            if( numeric ) {
+
+                dbId = parseInt( req.params.id, 10 ) || -1;
+
+                if( dbId === -1 ) {
+                    // Invalid id format
+                    var eMsg = `### ERROR: '${req.params.id}' is not a valid id`;
+                    // console.error(eMsg);
+                    res
+                        .status(404)
+                        .json({ error: eMsg });
+                    return; // on error do NOT call next
+                }
             }
 
             req.params._id = dbId;
